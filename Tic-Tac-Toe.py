@@ -58,13 +58,20 @@ class Field:
             state = '000000000'
             # Пока есть свободные клетки и никто не выиграл игроки по очереди делают шаги
             while Field.win_state(state) == 0:
+                old_state = state
                 state = player1.make_decission(state)
+                # Перерасчет ценностей
+                if state != '000000000':
+                    player2.refresh_values(state,old_state)
                 # Проверка, что прошлый игрок не победил на последнем шаге
                 if Field.win_state(state) == 0:
                     state = player2.make_decission(state)
+                    old_state = state
+                    player1.refresh_values(state,old_state)
+                    
             # Как только игра закончилась, отправить финальное состояние игрокам для пересчета ценностей
-            player1.refresh_values(state)
-            player2.refresh_values(state)
+            #player1.refresh_values(state)
+            #player2.refresh_values(state)
             # print(game_num,' игра. Выиграл игрок №',Field.win_state(state))
             # print(state[0],state[1],state[2])
             # print(state[3],state[4],state[5])
@@ -173,7 +180,7 @@ class Player:
                     max_value_states[state] = avail_states[state]
             # Вернуть следующее состояние с максимальной ценой (если несколько - выбрать рандомно)
             new_state, max_value = random.choice(list(max_value_states.items()))
-            self.steps.append(new_state)
+            #self.steps.append(new_state)
             return new_state
         # Если шаг разведочный -> выбираем случайный ход
         else:
@@ -182,15 +189,15 @@ class Player:
             return new_state
 
     # Перерасчет ценностей состояний
-    def refresh_values(self, final_state):
-        finish_value = self.states[final_state]
+    def refresh_values(self, n_state, n1_state):
+        #finish_value = self.states[final_state]
         # Для каждого шага в прошедшей игре перерасчитать ценность по формуле:
         # Новое_значение_ценности = Старое_значение_ценности + Размер_шага * (Ценность_последнего_шага - Старое_значение_ценности)
         # Ценность_последнего_шага равна 1 (если игрок выиграл) 0,5 (если ничья) 0 (если проиграл)
-        for step in self.steps:
-            old_value = self.states[step]
-            self.states[step] = old_value + LEARNING_RATE * (finish_value - old_value)
-        self.steps.clear()
+        #for step in self.steps:
+        old_value = self.states[n_state]
+        self.states[n_state] = old_value + LEARNING_RATE * (self.states[n1_state] - old_value)
+        #self.steps.clear()
 
     # Получить топ N состояний с наибольшей ценностью для игрока
     def get_top_n_states(self, top=5):
