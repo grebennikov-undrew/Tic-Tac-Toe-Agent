@@ -7,7 +7,7 @@ import random
 from collections import Counter
 
 # Размер шага (влияет на скорость обучения)
-LEARNING_RATE = 0.01
+LEARNING_RATE = 0.05
 PROGRESS_BAR = ProgressBar(total=100,prefix='Прогресс: ', suffix='', decimals=0, length=50, fill='▓', zfill='░')
 
 # Заменяет в строке символ по индексу
@@ -61,13 +61,12 @@ class Field:
                 old_state = state
                 state = player1.make_decission(state)
                 # Перерасчет ценностей
-                if state != '000000000':
-                    player2.refresh_values(state,old_state)
+                player2.refresh_values(old_state,state)
                 # Проверка, что прошлый игрок не победил на последнем шаге
                 if Field.win_state(state) == 0:
                     state = player2.make_decission(state)
                     old_state = state
-                    player1.refresh_values(state,old_state)
+                    player1.refresh_values(old_state,state)
                     
             # Как только игра закончилась, отправить финальное состояние игрокам для пересчета ценностей
             #player1.refresh_values(state)
