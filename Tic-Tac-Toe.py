@@ -7,7 +7,7 @@ import random
 from collections import Counter
 
 # Размер шага (влияет на скорость обучения)
-LEARNING_RATE = 0.5
+LEARNING_RATE = 0.05
 PROGRESS_BAR = ProgressBar(total=100,prefix='Прогресс: ', suffix='', decimals=0, length=50, fill='▓', zfill='░')
 
 # Заменяет в строке символ по индексу
@@ -78,6 +78,8 @@ class Field:
             # print(state[3],state[4],state[5])
             # print(state[6],state[7],state[8])
             # print('_______________________')
+            player1.refresh_values(old_state,state)
+            player2.refresh_values(old_state,state)
             # Показать прогресс-бар
             if (game_num/steps)*100 % 5 == 0:
                 # print('Обучение закончено на ', (game_num/(steps - 1))*100, '%')
@@ -219,17 +221,17 @@ player2 = Player(2)
 tic_tac_toe = Field()
 print('Первый этап обучения')
 # Обучение агента (250 000 игр за крестик и 250 000 игр за нолик)
-tic_tac_toe.start_learning(player1, player2, 250000)
+tic_tac_toe.start_learning(player1, player2, 100000)
 print()
-print('Второй этап обучения')
-tic_tac_toe.start_learning(player2, player1, 250000)
+#print('Второй этап обучения')
+#tic_tac_toe.start_learning(player2, player1, 250000)
 
 # Вывести историю игр при обучении
 #print(tic_tac_toe.game_history)
 
 # Вывсти наиболее ценные состояния игроков после обучения
-print(player1.get_top_n_states(20))
-print(player2.get_top_n_states(20))
+#print(player1.get_top_n_states(20))
+#print(player2.get_top_n_states(20))
 
 ### PVE ###
 while True:
