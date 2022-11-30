@@ -7,7 +7,7 @@ import random
 from collections import Counter
 
 # Размер шага (влияет на скорость обучения)
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.5
 PROGRESS_BAR = ProgressBar(total=100,prefix='Прогресс: ', suffix='', decimals=0, length=50, fill='▓', zfill='░')
 
 # Заменяет в строке символ по индексу
@@ -62,11 +62,13 @@ class Field:
                 state = player1.make_decission(state)
                 # Перерасчет ценностей
                 player2.refresh_values(old_state,state)
+                #print(old_state,state,self.win_state(state))
                 # Проверка, что прошлый игрок не победил на последнем шаге
                 if Field.win_state(state) == 0:
-                    state = player2.make_decission(state)
                     old_state = state
+                    state = player2.make_decission(state)
                     player1.refresh_values(old_state,state)
+                    #print(old_state,state,self.win_state(state))
                     
             # Как только игра закончилась, отправить финальное состояние игрокам для пересчета ценностей
             #player1.refresh_values(state)
@@ -160,6 +162,7 @@ class Player:
         for cell in empty_cells:
             avail_state = replace_char_at_index(current_state,cell,str(self.number))
             avail_states[avail_state] = self.states[avail_state]
+        #print(avail_states)
         return avail_states
 
     # Принятие решения о следующем шаге
@@ -194,8 +197,9 @@ class Player:
         # Новое_значение_ценности = Старое_значение_ценности + Размер_шага * (Ценность_последнего_шага - Старое_значение_ценности)
         # Ценность_последнего_шага равна 1 (если игрок выиграл) 0,5 (если ничья) 0 (если проиграл)
         #for step in self.steps:
-        old_value = self.states[n_state]
-        self.states[n_state] = old_value + LEARNING_RATE * (self.states[n1_state] - old_value)
+        #old_value = self.states[n_state]
+        self.states[n_state] = self.states[n_state] + LEARNING_RATE * (self.states[n1_state] - self.states[n_state])
+        #print('Перерасчет. ',self.number,' player. ',self.states[n_state],'=',self.states[n1_state] )
         #self.steps.clear()
 
     # Получить топ N состояний с наибольшей ценностью для игрока
@@ -224,8 +228,8 @@ tic_tac_toe.start_learning(player2, player1, 250000)
 #print(tic_tac_toe.game_history)
 
 # Вывсти наиболее ценные состояния игроков после обучения
-# print(player1.get_top_n_states(20))
-# print(player2.get_top_n_states(20))
+print(player1.get_top_n_states(20))
+print(player2.get_top_n_states(20))
 
 ### PVE ###
 while True:
